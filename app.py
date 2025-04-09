@@ -34,12 +34,18 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        if username in users and check_password_hash(users[username], password):
-            session['username'] = username
-            flash('Logged in successfully!')
-            return redirect(url_for('home'))
+        if username in users:
+            # Retrieve the hashed password from the user data
+            hashed_password = users[username]['password']
+            if check_password_hash(hashed_password, password):
+                session['username'] = username
+                flash('Logged in successfully!')
+                return redirect(url_for('home'))
+            else:
+                flash('Invalid username or password.')
         else:
             flash('Invalid username or password.')
+
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -57,7 +63,7 @@ def register():
             return redirect(url_for('register'))
 
         users[username] = {
-            'password': password,  # You should hash it in real apps
+            'password': generate_password_hash(password),  # You should hash it in real apps
             'name': name,
             'surname': surname
         }
