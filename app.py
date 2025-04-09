@@ -20,7 +20,11 @@ def save_users(users):
 @app.route('/')
 def home():
     if 'username' in session:
-        return render_template('home.html', username=session['username'])
+        users = load_users()
+        username = session['username']
+        name = users[username].get('name', '')
+        surname = users[username].get('surname', '')
+        return render_template('home.html', name=name, surname=surname)
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
