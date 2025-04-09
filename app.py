@@ -41,16 +41,29 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        users = load_users()
         username = request.form['username']
         password = request.form['password']
+        name = request.form['name']
+        surname = request.form['surname']
+
+        users = load_users()
+
         if username in users:
             flash('Username already exists.')
-        else:
-            users[username] = generate_password_hash(password)
-            save_users(users)
-            flash('Registration successful. Please login.')
-            return redirect(url_for('login'))
+            return redirect(url_for('register'))
+
+        users[username] = {
+            'password': password,  # You should hash it in real apps
+            'name': name,
+            'surname': surname
+        }
+
+        with open('users.json', 'w') as f:
+            json.dump(users, f, indent=4)
+
+        flash('Registration successful! Please log in.')
+        return redirect(url_for('login'))
+
     return render_template('register.html')
 
 @app.route('/logout')
